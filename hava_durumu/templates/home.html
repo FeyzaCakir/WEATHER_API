@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hava Durumu</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #6ebbd9, #fff);
+            color: #333;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #222;
+            font-size: 28px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        
+        form {
+            margin: 20px 0;
+        }
+        
+        select {
+            padding: 8px;
+            font-size: 16px;
+            margin-top: 10px;
+            width: 200px; /* Seçenek kutusu daraltıldı */
+            border: 1px solid #007acc;
+            border-radius: 5px;
+            background: #f7f9fc;
+            color: #333;
+            transition: all 0.3s ease;
+        }
+        
+        button {
+            padding: 10px;
+            font-size: 16px;
+            width: 200px; /* Buton genişliği seçenek kutusuyla uyumlu */
+            background: #007acc;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+        
+        button:hover {
+            background: #005f99;
+        }
+        
+        .weather-container {
+            background: rgba(134, 215, 244, 0.9);
+            padding: 20px; /* Kutu içi boşluk artırıldı */
+            border-radius: 12px; /* Kenar yuvarlaklığı artırıldı */
+            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.2); /* Daha belirgin bir gölge */
+            display: inline-block;
+            margin-top: 25px; /* Üst boşluk biraz büyütüldü */
+            width: 300px; /* Kutunun genişliği büyütüldü */
+        }
+        
+        .weather-container img {
+            width: 100px; /* Resim boyutu büyütüldü */
+            margin-top: 15px;
+        }
+        
+        .temperature {
+            font-size: 36px; /* Sıcaklık yazı boyutu büyütüldü */
+            font-weight: bold;
+            color: #007acc;
+        }
+        
+        .details {
+            font-size: 20px; /* Detay yazıları büyütüldü */
+            color: rgb(238, 223, 223);
+        }
+        
+        .city, .district {
+            font-size: 24px; /* Şehir ve ilçe yazı boyutları büyütüldü */
+            font-weight: bold;
+            color: rgb(238, 223, 223);
+        }
+        
+        
+        
+    </style>
+</head>
+<body>
+    <h1>Hava Durumu Uygulaması</h1>
+
+    <form method="POST">
+        <label for="country">Ülke Seç:</label>
+        <select name="country" id="country" onchange="this.form.submit()">
+            <option value="">Ülke Seç</option>
+            {% for country in countries %}
+                <option value="{{ country['iso2'] }}" {% if selected_country == country['iso2'] %}selected{% endif %}>
+                    {{ country['name'] }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+    
+    {% if states %}
+    <form method="POST">
+        <input type="hidden" name="country" value="{{ selected_country }}">
+        <label for="state">Şehir Seç:</label>
+        <select name="state" id="state" onchange="this.form.submit()">
+            <option value="">Şehir Seç</option>
+            {% for state in states %}
+                <option value="{{ state['iso2'] }}" {% if selected_state == state['iso2'] %}selected{% endif %}>
+                    {{ state['name'] }}
+                </option>
+            {% endfor %}
+        </select>
+    </form>
+    {% endif %}
+    
+    {% if cities %}
+    <form method="POST">
+        <input type="hidden" name="country" value="{{ selected_country }}">
+        <input type="hidden" name="state" value="{{ selected_state }}">
+        <label for="city">İlçe Seç:</label>
+        <select name="city" id="city">
+            {% for city in cities %}
+                <option value="{{ city['name'] }}">{{ city['name'] }}</option>
+            {% endfor %}
+        </select>
+        <br> <!-- Butonu aşağı kaydırmak için -->
+        <button type="submit" style="margin-top: 15px;">Hava Durumunu Göster</button>
+    </form>
+    
+    {% endif %}
+    
+    {% if weather %}
+    <div class="weather-container">
+        <div class="city">{{ selected_state }}</div>
+        <div class="district">({{ city_name }})</div>
+        <img src="https://openweathermap.org/img/wn/{{ weather['weather'][0]['icon'] }}@2x.png" alt="Hava Durumu">
+        <div class="temperature">{{ weather['main']['temp'] }}°C</div>
+        <div class="details">{{ weather['weather'][0]['description'] | title }}</div>
+        <div class="details">Hissedilen {{ weather['main']['feels_like'] }}°C</div>
+        <div class="details">Rüzgar: {{ weather['wind']['speed'] }} km/s</div>
+        <div class="details">Nem: %{{ weather['main']['humidity'] }}</div>
+    </div>
+    {% endif %}
+    
+</body>
+</html>
